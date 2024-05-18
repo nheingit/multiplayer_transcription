@@ -11,6 +11,17 @@ defmodule MultiTranscriptionWeb.TranscriptionLive do
     {:noreply, assign(socket, transcriptions: transcriptions)}
   end
 
+  def handle_event("upload_audio", %{"audio" => %Plug.Upload{path: path}}, socket) do
+    MultiTranscription.Audio.speech_to_text(path, 20, fn ss, text ->
+      MultiTranscriptionWeb.Endpoint.broadcast("transcription:lobby", "new_transcription", %{
+        "timestamp" => ss,
+        "transcription" => text
+      })
+    end)
+
+    {:noreply, socket}
+  end
+
   def handle_info(
         %Phoenix.Socket.Broadcast{
           topic: "transcription:lobby",
@@ -23,11 +34,6 @@ defmodule MultiTranscriptionWeb.TranscriptionLive do
     {:noreply, assign(socket, transcriptions: transcriptions)}
   end
 
-  # def handle_info(message, socket) do
-  #   IO.inspect(message, label: "Unmatched handle_info")
-  #   {:noreply, socket}
-  # end
-
   def render(assigns) do
     ~H"""
     <div id="transcription-room" phx-hook="Transcription">
@@ -37,9 +43,12 @@ defmodule MultiTranscriptionWeb.TranscriptionLive do
           <li><strong><%= timestamp %>:</strong> <%= transcription %></li>
         <% end %>
       </ul>
-      <button id="start_recording" phx-hook="Transcription">Start Recording</button>
-      <button id="stop_recording" phx-hook="Transcription">Stop Recording</button>
+      <form phx-submit="upload_audio">
+        <input type="file" id="audio-upload" name="audio" accept=".mp3" phx-hook="AudioUpload" />
+        <button type="submit">Upload MP3</button>
+      </form>
     </div>
     """
   end
 end
+

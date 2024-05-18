@@ -18,6 +18,7 @@ defmodule MultiTranscriptionWeb.Router do
     pipe_through :browser
 
     live "/", TranscriptionLive
+    post "/upload_audio", TranscriptionController, :upload_audio
   end
 
   # Other scopes may use custom stacks.
