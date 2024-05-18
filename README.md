@@ -1,5 +1,7 @@
 # MultiTranscription
 
+Assumes you have Elixir installed. If you don't you can checkout the docs here: https://elixir-lang.org/install.html
+
 To start your Phoenix server:
 
   * Run `mix setup` to install and setup dependencies
